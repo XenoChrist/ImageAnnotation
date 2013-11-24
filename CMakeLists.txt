@@ -4,3 +4,6 @@ find_package(OpenCV REQUIRED)
 
 add_executable(create_positive_samples create_positive_samples.cpp)
 target_link_libraries(create_positive_samples ${OpenCV_LIBS})
+
+add_executable(create_negative_samples create_negative_samples.cpp)
+target_link_libraries(create_negative_samples ${OpenCV_LIBS})
