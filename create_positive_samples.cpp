@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <set>
+#include <sstream>
 
 #include <dirent.h>
 #include <unistd.h>
@@ -46,35 +46,39 @@ void onMouse( int event, int x, int y, int, void* )
 
 int main(int argc, char * const argv[]) {
 
-	if(argc < 3) {
-		cout << "USAGE:" <<endl;
-		cout << argv[0] << " <input_directory/> <output_file>" << endl;
+	if(argc < 3)
+	{
+		cout << "USAGE:" << endl;
+		cout << argv[0] << " <input_directory> <output_file>" << endl;
 		return 1;
 	}
 	string dir(argv[1]), filepath;
 	DIR *dp;
 	dirent *ent;
-	stat filestat;
+	struct stat filestat;
+	int count = 0;
 
 	namedWindow("image");
 	setMouseCallback( "image", onMouse, 0 );
 		
-	ofstream ofs(argv[2], fstream::app);
+	ofstream ofs(argv[2], fstream::out);
 	
 	Mat img;
 	bool running = true;
 	dp = opendir(dir.c_str());
 	while ((ent = readdir(dp)) && running)
     {
+    	count = 0;
+    	stringstream ss;
 		filepath = dir + "/" + ent->d_name;
 		
 		// If the file is a directory (or is in some way invalid) we'll skip it 
-		if (stat(filepath.c_str(), &filestat ))	continue; //can't be opened...
-		if (S_ISDIR( filestat.st_mode ))			continue; //a directory
-		if (ent->d_name[0] == '.')					continue; //hidden file!
-		
+		if (stat(filepath.c_str(), &filestat))		continue;	//can't be openedz
+		if (S_ISDIR(filestat.st_mode))				continue;	//a directory
+		if (ent->d_name[0] == '.')					continue;	//hidden file
+
 		cout << filepath << endl;
-		ofs << filepath;
+		ofs << filepath << " ";
 		img = imread(filepath);
 		Point text_place(20,40);
 		while (true) {
@@ -88,17 +92,21 @@ int main(int argc, char * const argv[]) {
 			int c = waitKey(10);
 			
 			if (c == ' ') {
-				ofs << endl;
+				// ofs << endl;
 				break;
 			} else if (c == 27) {
 				running = false;
 				break;
 			} else if (c != -1) {
+				count++;
 				if(selection.width != 0)
-					ofs << " " << selection.x << "," << selection.y << "," << selection.width << "," << selection.height;
+				{
+					ss << selection.x << " " << selection.y << " " << selection.width << " " << selection.height << "  ";
+				}
 				selection = Rect(); 
 			}
 		}
+		ofs << count << " " << ss.str() << endl;
     }
 	closedir(dp);
 	

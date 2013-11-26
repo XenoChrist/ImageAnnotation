@@ -1,4 +1,19 @@
-CMakeCache.txt
+# Text Files
+
+*.txt
+!CMakeLists.txt
 Makefile
 *.cmake
+*~
+
+# Folders
+
 CMakeFiles/*
+Ball_Positives/*
+Negatives/*
+cascade/*
+
+# Executables
+
+create_positive_samples
+create_negative_samples
