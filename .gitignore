@@ -5,6 +5,8 @@
 Makefile
 *.cmake
 *~
+*.xml
+*.vec
 
 # Folders
 
@@ -12,8 +14,11 @@ CMakeFiles/*
 Ball_Positives/*
 Negatives/*
 cascade/*
+Human_Positives/*
+cropped/*
 
 # Executables
 
 create_positive_samples
 create_negative_samples
+test_classifier

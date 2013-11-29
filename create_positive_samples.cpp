@@ -1,4 +1,4 @@
-// Program to create the positive samples file.
+// Program to create the positive samples file and cropped images.
 
 #include <opencv2/opencv.hpp>
 #include <fstream>
@@ -46,13 +46,13 @@ void onMouse( int event, int x, int y, int, void* )
 
 int main(int argc, char * const argv[]) {
 
-	if(argc < 3)
+	if(argc < 4)
 	{
 		cout << "USAGE:" << endl;
-		cout << argv[0] << " <input_directory> <output_file>" << endl;
+		cout << argv[0] << " <input_directory> <output_file> <output_dir>" << endl;
 		return 1;
 	}
-	string dir(argv[1]), filepath;
+	string input_dir(argv[1]), filepath, output_dir(argv[3]);
 	DIR *dp;
 	dirent *ent;
 	struct stat filestat;
@@ -65,12 +65,11 @@ int main(int argc, char * const argv[]) {
 	
 	Mat img;
 	bool running = true;
-	dp = opendir(dir.c_str());
+	dp = opendir(input_dir.c_str());
 	while ((ent = readdir(dp)) && running)
     {
-    	count = 0;
     	stringstream ss;
-		filepath = dir + "/" + ent->d_name;
+		filepath = input_dir + "/" + ent->d_name;
 		
 		// If the file is a directory (or is in some way invalid) we'll skip it 
 		if (stat(filepath.c_str(), &filestat))		continue;	//can't be openedz
@@ -78,7 +77,6 @@ int main(int argc, char * const argv[]) {
 		if (ent->d_name[0] == '.')					continue;	//hidden file
 
 		cout << filepath << endl;
-		ofs << filepath << " ";
 		img = imread(filepath);
 		Point text_place(20,40);
 		while (true) {
@@ -98,15 +96,19 @@ int main(int argc, char * const argv[]) {
 				running = false;
 				break;
 			} else if (c != -1) {
-				count++;
 				if(selection.width != 0)
 				{
-					ss << selection.x << " " << selection.y << " " << selection.width << " " << selection.height << "  ";
+					count++;
+					stringstream output_file;
+					output_file << output_dir << "/" << count << ".jpg";
+					Mat cropped_image = img(selection).clone();
+					imwrite(output_file.str(), cropped_image);
+
+					ofs << output_file.str() << endl;
 				}
 				selection = Rect(); 
 			}
 		}
-		ofs << count << " " << ss.str() << endl;
     }
 	closedir(dp);
 	
